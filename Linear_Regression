@@ -1,0 +1,59 @@
+# Linear Regression Model
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+import joblib
+
+# Load your data
+# Replace this with actual loading of your data
+data = pd.read_csv(r"C:\Users\Joseph\Tennessee Distilling Dropbox\Distillation\D1 Distillation Documents\D1 Analyses\D1 Infection Analysis.csv")  # replace "your_data.csv" with your actual csv file path
+
+# Remove rows with NaNs
+data = data.dropna()
+
+# Convert columns with numbers represented as strings to float (if necessary)
+data['Backset Added'] = data['Backset Added'].str.replace(',', '').astype(float)
+
+# Uncomment the next line if 'Backset Added' is not already a float
+# data['Backset Added'] = data['Backset Added'].str.replace(',', '').astype(float)
+
+# Split the data into training set and test set
+X = data[['Fermenter pH', 'Post-backset pH']]  # Add other columns if required
+y = data['Backset Added']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a Linear Regression model
+model = LinearRegression()
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+print('Mean Squared Error:', mean_squared_error(y_test, y_pred))
+print('R-Squared:', r2_score(y_test, y_pred))
+
+# Ask for user input
+fermenter_pH = float(input("Enter the Fermenter pH: "))
+
+# Define the desired Post-backset pH
+desired_post_backset_pH = 4.90
+
+# Predicting the amount of backset to add for a given fermenter pH and desired Post-backset pH
+given_values = [fermenter_pH, desired_post_backset_pH]
+predicted_backset = model.predict([given_values])
+print(f"Given a fermenter pH of {fermenter_pH}, add {round(predicted_backset[0])} gallons of backset")
+
+# Visualizing the model's predictions
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, y_pred)
+plt.xlabel('Actual Backset Added')
+plt.ylabel('Predicted Backset Added')
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=3)
+plt.show()
